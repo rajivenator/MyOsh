@@ -6,6 +6,7 @@
 #include <bb/cascades/AbstractPane>
 #include <bb/cascades/NavigationPane>
 #include <bb/cascades/Page>
+#include <bb/data/JsonDataAccess>
 #include "JsonAccess.hpp"
 using namespace bb::cascades;
 
@@ -32,37 +33,41 @@ void MyOsh::getJSON() {
 	//Call the function to get handle of the json
 	ja->getData();
 	//Connect the signal emitted by the getData() method with onDataAccess method
-connect(ja, SIGNAL(complete(QString, bool)), this,SLOT(onDataAccess(QString, bool)));
+	connect(ja, SIGNAL(complete(QString, bool)), this,
+			SLOT(onDataAccess(QString, bool)));
 }
 
 void MyOsh::onDataAccess(QString info, bool success) {
-qDebug() << "onDataAccess in app ";
-if (success) {
-	qDebug() << "onDataAccess success" + info;
-	/*  QObject* txtA = m_navPane->findChild<QObject*>("txtRawJson");
-	 if(txtA)
-	 {
+	qDebug() << "onDataAccess in app ";
+	if (success) {
+		qDebug() << "onDataAccess success" + info;
+		/*  QObject* txtA = m_navPane->findChild<QObject*>("txtRawJson");
+		 if(txtA)
+		 {
 		 txtA->setProperty("text",info);
 
-	 }*/
-	 parseJson(info);
-} else {
-	qDebug() << "Error In onDataAccess" + info;
-}
+		 }*/
+		parseJson(info);
+	} else {
+		qDebug() << "Error In onDataAccess" + info;
+	}
 
 }
 
-void MyOsh::parseJson(QString info){
+void MyOsh::parseJson(QString info) {
 
 	QString correctedJson = "[" + info + "]";
-			correctedJson = correctedJson.replace("\n",",");
-			correctedJson = correctedJson.replace("},]","}]");
+	correctedJson = correctedJson.replace("\n", ",");
+	correctedJson = correctedJson.replace("},]", "}]");
 
-			  QObject* txtA = m_navPane->findChild<QObject*>("txtRawJson");
-				 if(txtA)
-				 {
-					 txtA->setProperty("text",correctedJson);
-
-				 }
+	QObject* txtA = m_navPane->findChild<QObject*>("txtRawJson");
+	if (txtA) {
+		txtA->setProperty("text", correctedJson);
+	}
+	// create a data model with sorting keys for firstname and lastname
+	GroupDataModel *model = new GroupDataModel(QStringList() << "uniqueKey");
+	// load the JSON data
+	JsonDataAccess jda;
+	QVariant list = jda.loadFromBuffer(info);
 
 }
